@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Limpieza Excel</title>
+</head>
+<body>
+    <h1>App Limpieza Excel</h1>
+    <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" id="file-input" name="file" accept=".xlsx">
+        <button type="submit">Subir Archivo</button>
+    </form>
+    <br>
+    <div id="download-link" style="display: none;">
+        <a id="download-button" href="#" download>Descargar Archivo Limpio</a>
+    </div>
+
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(this);
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                const downloadLink = document.getElementById('download-link');
+                const downloadButton = document.getElementById('download-button');
+                const fileInput = document.getElementById('file-input');
+                const nombreOriginal = fileInput.files[0].name; 
+                const nombreLimpio = nombreOriginal.replace(/\.[^/.]+$/, '') + "_limpio.xlsx";
+                downloadButton.href = 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,' + btoa(data.file);
+                downloadLink.style.display = 'block';  
+                downloadButton.setAttribute('download', nombreLimpio); 
+            } else {
+                alert(data.error);
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
